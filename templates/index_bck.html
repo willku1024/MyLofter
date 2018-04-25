@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+{% load customFilter_trunc %}
+{% load customTag_pageNum %}
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{% static 'semantic/css/semantic.min.css' %}">
+    <script src="http://ox6yf62u0.bkt.clouddn.com/jquery-2.1.4.min.js"></script>
+    <script src="http://ox6yf62u0.bkt.clouddn.com/semantic.min.js"></script>
+</head>
+
+<body>
+<div class="ui fixed menu" style="height:54px;padding:6px 0px 8px 25px">
+    <div class="ui right labeled input">
+        <div class="ui basic label" style="padding:4px 0px 0px 20px" onclick="window.location.href='/user/music/'">
+            <i class="teal big pinterest icon"> </i>
+        </div>
+        <input type="text" id="search_text" placeholder="Search..." style="min-width: 356px">
+        <div class="ui right attached basic button" id="search_button"
+             style="margin:1px 0px;padding: 11px 5px 0px 10px;">
+            <i class="search teal icon"></i>
+        </div>
+    </div>
+    <div class="ui left attached basic button" style="margin:0 0 0 700px">
+        <i class="teal user icon"></i>Login&nbsp;&nbsp;&nbsp;
+    </div>
+    <div class="right attached ui basic button">
+        <i class="right teal setting icon"></i>
+    </div>
+</div>
+
+
+<div class="ui container " id="content" style="margin: 100px">
+    <!-- <div class="ui  grid four column"> -->
+    <div class="ui  width grid three column">
+
+
+        {% for item in contacts %}
+            <div class="column">
+                {#            <div class="teal ui card " style="width:236px;">#}
+                <div class="ui teal  card">
+                    <a href="{% url 'per_blog' item.id %}" class="ui  image">
+                        <img src="{{ MEDIA_URL }}{{ item.image }}">
+                    </a>
+                    <div class="content">
+                        <a href="{% url 'per_blog' item.id %}" class="header">{{ item.title }}</a>
+                        <div class="meta">
+                            <span class="date">{{ item.timestamp|date:"D d M Y" }}</span>
+                        </div>
+                        <div class="description">{{ item.content | shorten_content:"50" }}</div>
+                    </div>
+                    <div class="extra content">
+                        <a id="item_{{ item.id }}"><i class="heart icon"></i>
+                            <span>
+                           {{ item.fav_click }}
+                       </span>
+                        </a>
+                        <span class="right floated">{{ item.timestamp }}</span>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+</div>
+
+
+<div class="ui center aligned container" style="margin-bottom: 100px">
+    <div class="ui pagination menu">
+        {% if contacts.has_previous %}
+            <a class="item" href="?page={{ contacts.previous_page_number }}" ">
+            <span>&laquo;</span>
+            </a>
+            {#        {% else %}#}
+            {#            <a class="disabled item" aria-label="Previous" href="javascript:;">#}
+            {#                <span>&laquo;</span>#}
+            {#            </a>#}
+        {% endif %}
+
+
+
+        {#        {% for page_num in contacts.paginator.page_range %}#}
+        {#            {% if page_num == contacts.number %}#}
+        {#                <a class="active item" href="?page={{ page_num }}">{{ page_num }}</a>#}
+        {#            {% else %}#}
+        {#                <a class="item" href="?page={{ page_num }}">{{ page_num }}</a>#}
+        {#            {% endif %}#}
+        {#        {% endfor %}#}
+
+        {% for page_num in contacts.paginator.page_range %}
+            {% guess_page contacts.number page_num %}
+        {% endfor %}
+
+        {% if contacts.has_next %}
+            <a class="item" href="?page={{ contacts.next_page_number }}">
+                <span aria_hidden="true">&raquo;</span>
+            </a>
+            {#        {% else %}#}
+            {#            <a class="disabled item"  href="javascript:;">#}
+            {#                &raquo;#}
+            {#            </a>#}
+        {% endif %}
+
+
+    </div>
+</div>
+
+
+<script src="{% static 'semantic/js/common.js' %}"></script>
+
+<script>
+
+
+    //收藏分享
+    function add_fav(current_elem, item_id) {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "{% url 'add_fav' %}",
+            data: {'item_id': item_id},
+            async: true,
+            beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            },
+            success: function (data) {
+                if (data.status == 'success') {
+                    current_elem.children("span").text(data.newfav);
+                } else {
+                    alert("点赞失败");
+                }
+            },
+        });
+    }
+
+</script>
+</body>
+
+
+</html>

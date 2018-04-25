@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+{% load customFilter_commentTime %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link type="text/css" href="https://cdn.bootcss.com/amazeui/2.7.2/css/amazeui.min.css" rel="stylesheet">
+    <link href="http://ox6yf62u0.bkt.clouddn.com/semantic-ui/2.2.13/semantic.min.css" rel="stylesheet">
+    <script src="http://ox6yf62u0.bkt.clouddn.com/jquery-2.1.4.min.js"></script>
+    <script src="http://ox6yf62u0.bkt.clouddn.com/semantic-ui/2.2.13/semantic.min.js"></script>
+    <title>{{ blog_item.title }}</title>
+
+    <style>
+        #tip_grid {
+            height: 100%;
+        }
+
+        #tip_column {
+            margin-top: 30px;
+            max-width: 230px;
+
+        }
+    </style>
+    <script>
+        $('document').ready(function () {
+
+           $("img").each(function(){
+                if ($(this).attr('src').indexOf('img.baidu')<0 && $(this).attr('src').indexOf('attachment')<0)
+                {
+                   $(this).addClass("ui centered large image");
+                }
+
+
+        });
+        })
+    </script>
+
+</head>
+
+<body class="ui blurring">
+<div class=" ui aligned container three column centered grid" style="margin:10px">
+    <div class="row">
+        <div class="center aligned column">
+            <div class="ui vertical animated button basic" tabindex="0"
+                 onclick='location="{% url 'user_blog' uid blog_pre %}"'>
+                <div class="hidden content" style="font-weight: bold">上一篇</div>
+                <div class="visible content">
+                    <i class="arrow large left teal icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="center aligned column">
+            <div class="ui  fade animated button basic" tabindex="0" onclick='location="{% url 'user_index' uid %}"'>
+                <div class="visible content"><i class="home large teal icon"></i></div>
+                <div class="hidden content" style="font-weight: bold">
+                    主页
+                </div>
+            </div>
+        </div>
+        <div class="center aligned column">
+            <div class="ui vertical animated button basic" tabindex="0"
+                 onclick='location="{% url 'user_blog' uid blog_next %}"'>
+                <div class="hidden content " style="font-weight: bold">下一篇</div>
+                <div class="visible content">
+                    <i class="arrow  large right teal icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="ui text container " essay_id="{{ blog_item.id }}">
+
+
+    <div class="ui segment">
+    <h2 class="ui header teal">{{ blog_item.title }}</h2>
+    <div class="ui grid one column  stackable">
+        <div class="right aligned column" style="font-size: small">
+            作者：{{ blog_item.get_author_name }}&nbsp;&nbsp;
+            时间：{{ blog_item.timestamp|date:'Y/m/d' }}
+
+        </div>
+
+    </div>
+
+
+        <div class="ui section divider "></div>
+        <div id="essay">
+
+        {% autoescape off %}
+            {{ blog_item.content }}&nbsp;
+        {% endautoescape %}
+
+
+    </div>
+
+        <div class="ui section divider "></div>
+
+    <div class="ui labeled button" id="blogPage_fav" tabindex="0">
+        <div class="ui teal button"><i class="heart icon"></i>喜欢</div>
+        <a class="ui basic teal left pointing label">
+            {{ blog_item.fav_click }}
+        </a>
+    </div>
+</div>
+</div>
+
+
+<div class="ui raised  text container segment  basic">
+
+    <div class="ui comments" id="element-to-follow">
+        <h3 class="ui dividing teal header">近期评论({{ comments_count }})</h3>
+
+        {% for comment in comments %}
+            <div class="comment">
+                <div class="content">
+                    <a style="cursor: default">
+                        {% if comment.comment_user %}
+                            {{ comment.comment_user }}
+                        {% else %}
+                            {{ comment.anonymous_user }}
+                        {% endif %}
+                    </a>
+                    <div class="metadata">
+                        <span class="date">{{ comment.add_time| commentTime }}</span>
+                    </div>
+                    <div class="text">{{ comment.comments }}</div>
+                    <div class="actions">
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <form class="ui reply form">
+            <div class="field">
+                <textarea></textarea>
+            </div>
+            <div class="ui teal labeled submit icon button"><i class="icon edit"></i> 发表</div>
+        </form>
+    </div>
+
+<!--
+    <div class="ui right rail " style="position:relative">
+
+        <div class="ui segment basic right aligned " style="position: absolute;bottom: 30px" id="returnTop">
+            <button class="ui icon button inverted white" title="返回顶部">
+                <i class="chevron circle up icon big teal ui">
+                    <span style="font-size: 15px;font-weight: bold">Top</span>
+                </i>
+            </button>
+        </div>
+    </div>-->
+</div>
+
+
+<div class="ui dimmer">
+    <div class=" ui middle aligned center aligned grid padded " id="tip_grid">
+        <div class="column" id="tip_column">
+            <div class="ui icon floating message">
+                <i class="comment outline  icon"></i>
+                <div class="header">
+                    <p>评论成功</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'semantic/js/common.js' %}"></script>
+
+<script>
+    $("#returnTop").click(function () {
+        var speed = 250;
+        $('body,html').animate({scrollTop: 0}, speed);
+        return false;
+    });
+</script>
+
+
+<script>
+
+
+    //收藏分享
+    function add_fav(current_elem, item_id) {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "{% url 'add_fav' %}",
+            data: {'item_id': item_id},
+            async: true,
+            beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            },
+            success: function (data) {
+                if (data.status == 'success') {
+                    current_elem.children("a").text(data.newfav);
+                } else {
+                    alert("点赞失败");
+                }
+            },
+        });
+    }
+
+</script>
+
+<script>
+    $(".submit.button").click(function () {
+        var essay_id = $('.text.container').attr('essay_id');
+        var comments = $('textarea').val();
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "{% url 'add_comment' %}",
+            data: {'essay_id': essay_id, 'comments': comments},
+            async: true,
+            beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            },
+            success: function (data) {
+                if (data.status == 'success') {
+                    ok();
+                } else {
+                    alert(data.msg);
+                }
+            },
+        });
+    });
+</script>
+
+<script>
+    function ok() {
+        $('body').dimmer('show');
+        setTimeout(
+            function () {
+                window.location.reload()
+            }
+            , 1000)
+    }
+
+
+</script>
+</body>
+
+</html>

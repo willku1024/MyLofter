@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+{% load staticfiles %}
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link href="http://ox6yf62u0.bkt.clouddn.com/semantic-ui/2.2.13/semantic.min.css" rel="stylesheet">
+    <script src="http://ox6yf62u0.bkt.clouddn.com/jquery-2.1.4.min.js"></script>
+    <script src="http://ox6yf62u0.bkt.clouddn.com/semantic-ui/2.2.13/semantic.min.js"></script>
+    <title>注册</title>
+
+
+    <style type="text/css">
+        body {
+            background-color: #d9ece2;
+        }
+
+        body > .grid {
+
+            height: 100%;
+        }
+
+        .column {
+            margin-top: 50px;
+            max-width: 550px;
+        }
+    </style>
+    <script>
+        function error_show(current_item, e) {
+
+            setTimeout(function () {
+                if (current_item.val() != '') {
+                    $('.error').css('display', 'none');
+                }
+            }, 500);
+
+        };
+    </script>
+
+    <script>
+
+        $(function () {
+            $(document).keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $(".submit.button").click();
+                }
+            })
+        });
+
+    </script>
+</head>
+
+<body>
+<!--Gird Start-->
+<div class="ui middle aligned center aligned grid padded">
+    <div class="column">
+        <div class="ui attached message ">
+            <div class="header">
+                欢迎访问！
+            </div>
+            <p>注册一个新帐户，开启一段新旅程</p>
+        </div>
+        <form class="ui form attached fluid segment" name="register_form" method="post">
+
+            <div class="two fields">
+                <div class="field">
+                    <label>昵称</label>
+                    <input placeholder="起一个好听的名字吧..." title="昵称" name="username" type="text"
+                           oninput="error_show($(this))" value="{{ register_form.username.value }}">
+                </div>
+                <div class="field">
+                    <label>邮箱</label>
+                    <input placeholder="请牢记登录邮箱" title="邮箱" name="email" type="email" oninput="error_show($(this))"
+                           value="{{ register_form.email.value }}">
+                </div>
+            </div>
+            <div class="field">
+                <label>创建密码</label>
+                <input type="password" placeholder="密码不能小于8位" name="password1" title="创建密码"
+                       oninput="error_show($(this))">
+            </div>
+            <div class="field">
+                <label>确认密码</label>
+                <input type="password" placeholder="确认创建的密码" name="password2" title="确认密码"
+                       oninput="error_show($(this))">
+            </div>
+            <div class="inline field">
+                <div class="ui checkbox">
+                    <input type="checkbox" title="同意" name="check_box" checked="checked">
+                    <label for="terms">同意<a href="javascript:$('.ui.basic.modal').modal('show');" title="阅读服务条款" oninput="error_show($(this))">服务条款</a></label>
+                </div>
+            </div>
+
+            {% csrf_token %}
+            <div class="ui error mini message" style="display:{{ status }};">{{ msg }}</div>
+
+            <div class="ui blue submit button" type="submit" onclick="check_register()">提交</div>
+
+        </form>
+
+        <div class="ui bottom attached warning message">
+            已经有帐号？ <a href="{% url 'users:login' %}">登录</a>
+        </div>
+    </div>
+</div>
+<!--Gird End-->
+
+
+<!--Modal Start-->
+<div class="ui basic modal">
+    <div class="ui icon header">
+        <i class="info circle"></i>
+        服务条款
+    </div>
+    <div class="content">
+        <iframe hspace="0" marginheight="0" marginwidth="0" frameborder="0" width="85%" height="300" scrolling="yes"
+                src="http://www.qq.com/contract20141204.htm"></iframe>
+    </div>
+    <div class="actions">
+
+        <div class="ui green ok inverted button">
+            <i class="checkmark icon"></i>
+            已阅读
+        </div>
+    </div>
+</div>
+<!--Modal End-->
+
+
+<script src="{% static 'semantic/js/common.js' %}"></script>
+</body>
+
+
+</html>

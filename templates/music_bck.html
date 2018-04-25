@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="{% static 'semantic/css/semantic.min.css' %}">
+    <script src="http://ox6yf62u0.bkt.clouddn.com/jquery-2.1.4.min.js"></script>
+    <script src="http://ox6yf62u0.bkt.clouddn.com/semantic.min.js"></script>
+    <title>Music</title>
+</head>
+
+<body class="ui center aligned container ">
+
+<div class="ui  aligned centered grid " id="bar" style="margin-top: 190px">
+    <div class="one column row stackable">
+        <div class="ui segment text basic center aligned">
+            <div class="ui action input " style="width: 40%">
+                <input type="text" placeholder="输入网易云音乐歌单分享链接..."
+                       value="http://music.163.com/#/m/playlist?id=223492&userid=181275">
+                <button class="ui icon button red" data-tooltip="点击查找你的歌单" data-position="top right">
+                    <i class="search icon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="ui three column divided stackable centered grid " id="show" style="display: none;">
+    <div class="stretched row ">
+        <div class="column">
+            <div class="ui segment basic center aligned">
+                <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=310 height=380
+                        src=""></iframe>
+            </div>
+        </div>
+        <div class="column  computer only ">
+            <div class="ui segment basic center aligned "  style="margin-top: 40%">
+                <div class="ui big green labeled icon button"><i class="list layout icon"></i>浏览歌单</div>
+            </div>
+        </div>
+        <dov class="column tablet  mobile only">
+            <div class="ui segment basic center aligned" >
+                <div class="ui big green labeled icon button"><i class="list layout icon"></i> 浏览歌单</div>
+            </div>
+        </dov>
+    </div>
+
+
+</div>
+
+
+<script>
+    function music(list_id) {
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "{% url 'users:163_music' %}",
+            data: {'list_id': list_id},
+            async: true,
+            beforeSend: function (xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            },
+            success: function () {
+
+                window.location.href = "/user/song/" + list_id;
+                alert("歌单正在爬取，请耐心等待...");
+            }
+        });
+    }
+</script>
+
+
+<script>
+    $(".button.red").click(function () {
+
+        var content = $('input').val();
+        if (content != '') {
+            if (content.indexOf("?id") > 0) {
+                var list_id = content.split('playlist?id=')[1].split('&')[0];
+            } else {
+                var list_id = content.split('playlist')[1].split('/')[1];
+            }
+        }
+        $('#bar').css('margin-top', '80px');
+        $('#show').css('display', 'block');
+
+        var url = ['http://music.163.com/outchain/player?type=0&id=', '&auto=1&height=430'];
+        $('iframe').attr('src', url[0] + list_id + url[1]);
+
+
+    });
+</script>
+
+
+<script>
+    $('.big.green').click(
+        function () {
+            var content = $('input').val();
+            if (content != '') {
+                if (content.indexOf("?id") > 0) {
+                    var list_id = content.split('playlist?id=')[1].split('&')[0];
+                } else {
+                    var list_id = content.split('playlist')[1].split('/')[1];
+                }
+            }
+            //alert(list_id);
+            music(list_id);
+
+        }
+    )
+
+
+</script>
+</body>
+
+</html>
